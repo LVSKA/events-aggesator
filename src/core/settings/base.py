@@ -62,11 +62,11 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "events_aggregator"),
-        "USER": os.environ.get("DB_USER", "events_aggregator"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "events_aggregator"),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+        "NAME": os.environ.get("POSTGRES_DATABASE_NAME", os.environ.get("DB_NAME", "events_aggregator")),
+        "USER": os.environ.get("POSTGRES_USERNAME", os.environ.get("DB_USER", "events_aggregator")),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", os.environ.get("DB_PASSWORD", "events_aggregator")),
+        "HOST": os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
+        "PORT": os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
     }
 }
 
@@ -100,11 +100,11 @@ EVENTS_PROVIDER_API_KEY = os.environ.get("EVENTS_PROVIDER_API_KEY", "")
 CELERY_BROKER_URL = os.environ.get(
     "CELERY_BROKER_URL",
     "sqla+postgresql://{user}:{password}@{host}:{port}/{name}".format(
-        user=os.environ.get("DB_USER", "events_aggregator"),
-        password=os.environ.get("DB_PASSWORD", "events_aggregator"),
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=os.environ.get("DB_PORT", "5432"),
-        name=os.environ.get("DB_NAME", "events_aggregator"),
+        user=os.environ.get("POSTGRES_USERNAME", os.environ.get("DB_USER", "events_aggregator")),
+        password=os.environ.get("POSTGRES_PASSWORD", os.environ.get("DB_PASSWORD", "events_aggregator")),
+        host=os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
+        port=os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
+        name=os.environ.get("POSTGRES_DATABASE_NAME", os.environ.get("DB_NAME", "events_aggregator")),
     ),
 )
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "0") == "1"
