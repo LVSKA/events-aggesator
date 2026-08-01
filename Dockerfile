@@ -16,4 +16,6 @@ COPY . .
 RUN chmod +x run.sh
 
 EXPOSE 8000
+RUN chown -R 1000:1000 /app
+USER 1000
 CMD ["bash", "./run.sh"]
