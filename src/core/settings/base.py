@@ -59,14 +59,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+def env(*names, default=None):
+    """Return the value of the first set environment variable among `names`."""
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return default
+
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DATABASE_NAME", os.environ.get("DB_NAME", "events_aggregator")),
-        "USER": os.environ.get("POSTGRES_USERNAME", os.environ.get("DB_USER", "events_aggregator")),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", os.environ.get("DB_PASSWORD", "events_aggregator")),
-        "HOST": os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
-        "PORT": os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
+        "NAME": env("POSTGRES_DATABASE_NAME", "DB_NAME", default="events_aggregator"),
+        "USER": env("POSTGRES_USERNAME", "DB_USER", default="events_aggregator"),
+        "PASSWORD": env("POSTGRES_PASSWORD", "DB_PASSWORD", default="events_aggregator"),
+        "HOST": env("POSTGRES_HOST", "DB_HOST", default="localhost"),
+        "PORT": env("POSTGRES_PORT", "DB_PORT", default="5432"),
     }
 }
 
@@ -96,15 +105,15 @@ REST_FRAMEWORK = {
 EVENTS_PROVIDER_BASE_URL = os.environ.get("EVENTS_PROVIDER_BASE_URL", "")
 EVENTS_PROVIDER_API_KEY = os.environ.get("EVENTS_PROVIDER_API_KEY", "")
 
-# --- Celery: broker is Postgres (via kombu's sqlalchemy transport), no Redis ---
+
 CELERY_BROKER_URL = os.environ.get(
     "CELERY_BROKER_URL",
     "sqla+postgresql://{user}:{password}@{host}:{port}/{name}".format(
-        user=os.environ.get("POSTGRES_USERNAME", os.environ.get("DB_USER", "events_aggregator")),
-        password=os.environ.get("POSTGRES_PASSWORD", os.environ.get("DB_PASSWORD", "events_aggregator")),
-        host=os.environ.get("POSTGRES_HOST", os.environ.get("DB_HOST", "localhost")),
-        port=os.environ.get("POSTGRES_PORT", os.environ.get("DB_PORT", "5432")),
-        name=os.environ.get("POSTGRES_DATABASE_NAME", os.environ.get("DB_NAME", "events_aggregator")),
+        user=env("POSTGRES_USERNAME", "DB_USER", default="events_aggregator"),
+        password=env("POSTGRES_PASSWORD", "DB_PASSWORD", default="events_aggregator"),
+        host=env("POSTGRES_HOST", "DB_HOST", default="localhost"),
+        port=env("POSTGRES_PORT", "DB_PORT", default="5432"),
+        name=env("POSTGRES_DATABASE_NAME", "DB_NAME", default="events_aggregator"),
     ),
 )
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "0") == "1"
