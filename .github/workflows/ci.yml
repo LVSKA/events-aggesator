@@ -1,14 +1,13 @@
 name: CI
- 
+
 on:
   push:
     branches: [main]
   pull_request:
- 
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
- 
     services:
       postgres:
         image: postgres:16
@@ -16,29 +15,19 @@ jobs:
           POSTGRES_USER: events_aggregator
           POSTGRES_PASSWORD: events_aggregator
           POSTGRES_DB: events_aggregator
-        ports:
-          - 5432:5432
+        ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
- 
     steps:
       - uses: actions/checkout@v4
- 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
- 
-      - name: Set up Python
-        run: uv python install
- 
-      - name: Install dependencies
-        run: uv sync --all-extras
- 
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install
+      - run: uv sync --all-extras
       - name: Ruff lint
         run: uv run ruff check .
- 
       - name: Run tests
         env:
           PYTHONPATH: src
@@ -49,7 +38,7 @@ jobs:
           DB_HOST: localhost
           DB_PORT: 5432
         run: uv run pytest
- 
+
   build-and-push:
     needs: lint-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -57,20 +46,17 @@ jobs:
     permissions:
       contents: read
       packages: write
- 
     steps:
       - uses: actions/checkout@v4
- 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
- 
-      - name: Build and push image
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/lvska/events-aggesator:${{ github.sha }}
+          tags: |
+            ghcr.io/lvska/events-aggesator:main
+            ghcr.io/lvska/events-aggesator:${{ github.sha }}
