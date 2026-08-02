@@ -1,14 +1,6 @@
-import warnings
-
-from .base import *
+from .base import *  # noqa: F401,F403
 
 DEBUG = False
 
 if not ALLOWED_HOSTS:
-    warnings.warn(
-    "DJANGO_ALLOWED_HOSTS is not set — falling back to '*'. "
-    "Set it explicitly once the deployment platform supports custom env vars.",
-    RuntimeWarning,
-    stacklevel=2,
-)
-    ALLOWED_HOSTS = ["*"]
+    raise RuntimeError("DJANGO_ALLOWED_HOSTS must be set in production")
