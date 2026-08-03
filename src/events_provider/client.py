@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urljoin, urlparse
 
 import requests
 
@@ -104,7 +104,7 @@ class EventsProviderClient:
         )
 
     def _request(self, method: str, path: str, **kwargs) -> requests.Response:
-        url = f"{self._base_url}{path}"
+        url = urljoin(self._base_url, path)
         response = requests.request(
             method, url, headers=self._headers, timeout=self._timeout, **kwargs
         )

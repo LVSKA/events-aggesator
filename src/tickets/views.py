@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events_provider.client import EventsProviderClient
+from events_provider.exceptions import SeatAlreadyTaken
 from tickets import logic
 from tickets.exceptions import (
     RegistrationClosed,
@@ -33,9 +34,10 @@ class TicketCreateView(APIView):
             return Response({"detail": str(exc)}, status=status.HTTP_404_NOT_FOUND)
         except (RegistrationClosed, SeatNotInPattern) as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except SeatAlreadyTaken as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_409_CONFLICT)
 
         return Response(TicketSerializer(ticket).data, status=status.HTTP_201_CREATED)
-
 
 class TicketDeleteView(APIView):
     def delete(self, request, ticket_id):
